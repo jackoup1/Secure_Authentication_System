@@ -28,20 +28,19 @@ const login = async (credentials) => {
     if (error.response) {
       throw new Error(error.response.data.message);
     }
-    throw new Error('Network error. Please try again later.');
+    throw error; 
   }
 };
 
 const signup = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/signUp`, userData);
-    // Note: The backend returns a success message rather than a token for signup
     return response.data;
   } catch (error) {
     if (error.response) {
       throw new Error(error.response.data.message);
     }
-    throw new Error('Network error. Please try again later.');
+    throw error; 
   }
 };
 
