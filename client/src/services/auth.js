@@ -58,10 +58,39 @@ const signup = async (userData) => {
 
 const logout = async () => {
   try {
-    await axios.post(`${API_URL}/logout`);
+    const token = localStorage.getItem('token');
+    if (token) {
+      await axios.post(`${API_URL}/logout`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    }
+    
+    // Clear all auth-related data
     localStorage.removeItem('token');
+    localStorage.removeItem('lastLogin');
+    localStorage.removeItem('failedLogins');
+    
+    // Clear browser history and prevent back navigation
+    window.history.pushState(null, '', '/login');
+    
+    // Force a hard redirect to login page
+    window.location.href = '/login';
+    
+    // Additional security measure: prevent any further navigation
+    window.onpopstate = function() {
+      window.history.pushState(null, '', '/login');
+      window.location.href = '/login';
+    };
   } catch (error) {
-    localStorage.removeItem('token'); // Always remove token even if API call fails
+    console.error('Logout error:', error);
+    // Even if the API call fails, clear everything and redirect
+    localStorage.removeItem('token');
+    localStorage.removeItem('lastLogin');
+    localStorage.removeItem('failedLogins');
+    window.history.pushState(null, '', '/login');
+    window.location.href = '/login';
   }
 };
 
