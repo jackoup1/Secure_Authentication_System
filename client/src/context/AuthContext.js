@@ -8,24 +8,46 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        const result = await authService.checkAuth();
-        setUser(result ? result.user : null);
-      } catch (err) {
-        setUser(null);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const userData = authService.getUser();
+          if (userData) {
+            setUser(userData);
+          } else {
+            // If token is invalid or expired, clean up
+            localStorage.removeItem('token');
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
     };
-    checkAuth();
-  }, []);
+
+    initializeAuth();
+
+    // Setup interval to periodically check token validity
+    const checkInterval = setInterval(() => {
+      const userData = authService.getUser();
+      if (!userData && user) {
+        // Token has expired, update state
+        setUser(null);
+        localStorage.removeItem('token');
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkInterval);
+  }, [user]);
 
   const login = async (credentials) => {
     const data = await authService.login(credentials);
     if (data.token) {
-      const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
-      setUser({ id: decodedToken.id, username: decodedToken.username });
+      const userData = authService.getUser();
+      setUser(userData);
     }
     return data;
   };
@@ -41,22 +63,28 @@ const AuthProvider = ({ children }) => {
     window.location.replace('/login');
   };
 
-
   const githubLogin = async (token) => {
     try {
       if (token) {
         localStorage.setItem('token', token);
-        const decodedToken = JSON.parse(atob(token.split('.')[1]));
-        setUser({ id: decodedToken.id, username: decodedToken.username });
+        const userData = authService.getUser();
+        setUser(userData);
+        
+        // Record login timestamp
+        const loginData = {
+          timestamp: new Date().toISOString(),
+          user_agent: navigator.userAgent,
+          success: true
+        };
+        localStorage.setItem('lastLogin', JSON.stringify(loginData));
+        
+        window.location.replace('/dashboard');
       }
     } catch (err) {
       console.error('Invalid GitHub token', err);
       setUser(null);
     }
   };
-  
-
-
 
   return (
     <AuthContext.Provider value={{ 

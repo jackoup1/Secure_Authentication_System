@@ -2,19 +2,31 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/auth';
 
-const checkAuth = async () => {
-  const token = localStorage.getItem('token');
-  if (!token) return false;
-  
+const decodeToken = (token) => {
   try {
-    const response = await axios.get(`${API_URL}/check`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    return response.data;
+    return JSON.parse(atob(token.split('.')[1]));
   } catch (error) {
-    localStorage.removeItem('token'); // Clear invalid token
-    return false;
+    return null;
   }
+};
+
+const getUser = () => {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  
+  const decoded = decodeToken(token);
+  if (!decoded) {
+    localStorage.removeItem('token');
+    return null;
+  }
+  
+  // Check if token is expired
+  if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+    localStorage.removeItem('token');
+    return null;
+  }
+  
+  return decoded;
 };
 
 const login = async (credentials) => {
@@ -80,7 +92,7 @@ axios.interceptors.response.use(
 );
 
 const authService = {
-  checkAuth,
+  getUser,
   login,
   signup,
   logout,

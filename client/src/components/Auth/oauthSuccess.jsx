@@ -1,27 +1,21 @@
-// OauthSuccess.jsx
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useContext } from 'react';
+// OAuthSuccess.jsx
+import React, { useEffect, useContext } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import LoadingSpinner from '../LoadingSpinner';
 
-const OauthSuccess = () => {
+const OAuthSuccess = () => {
+  const [searchParams] = useSearchParams();
   const { githubLogin } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get('token');
-
+    const token = searchParams.get('token');
     if (token) {
-      githubLogin(token); // Save the token, update auth state
-      navigate('/dashboard');
-    } else {
-      navigate('/login');
+      githubLogin(token);
     }
-  }, [location.search, githubLogin, navigate]);
+  }, [searchParams, githubLogin]);
 
-  return null; // or a loading spinner
+  return <LoadingSpinner />;
 };
 
-export default OauthSuccess;
+export default OAuthSuccess;
