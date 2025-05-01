@@ -165,7 +165,7 @@ new GitHubStrategy(
 // GitHub callback controller
 export function githubCallback(req: any, res: Response) {
     const user = req.user as any;
-    logLoginEvent(user,true,req.ip_address);
+    logLoginEvent(user,true,req.body.ip_address);
     const token = jwt.sign(
         { id: user.id, username: user.username },
         secret,
