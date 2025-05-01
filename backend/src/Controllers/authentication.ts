@@ -4,6 +4,7 @@ import argon2 from "argon2"
 import jwt from "jsonwebtoken";
 import passport from "passport";
 import { Strategy as GitHubStrategy } from 'passport-github';
+import { logLoginEvent } from "../utility/logger";
 
 const secret = process.env.JWT_SECRET as string;
 
@@ -26,6 +27,9 @@ export async function Login(req: Request, res: Response) {
             res.json({ message: "User Not found" });
             return;
         }
+        //just for debugging and security
+        logLoginEvent(user);
+
         const isValidPassword = await argon2.verify(user.password!, password);
 
         if (!isValidPassword) {
@@ -35,10 +39,7 @@ export async function Login(req: Request, res: Response) {
         }
         //creating the token with data of username and id of the user expires in 24h
         const token = jwt.sign({ username: user.username, id: user.id }, secret, { expiresIn: "24h" });
-        res.json({ token });
-
-        console.log(`user: ${user.username} just logged in at: ${new Date().toLocaleString('en-US', options)}`);
-        
+        res.json({ token });        
         await prisma.loginLog.create({data:{userId:user.id}});
         return;
         
@@ -141,6 +142,7 @@ new GitHubStrategy(
             });
 
             if (existingUser) {
+                logLoginEvent(existingUser);
                 return done(null, existingUser);
             }
             console.log(profile);
@@ -163,7 +165,7 @@ new GitHubStrategy(
 // GitHub callback controller
 export function githubCallback(req: Request, res: Response) {
     const user = req.user as any;
-
+    logLoginEvent(user);
     const token = jwt.sign(
         { id: user.id, username: user.username },
         secret,
