@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
+import { Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import Login from './components/Auth/Login';
@@ -42,41 +41,37 @@ const GitHubCallback = () => {
 function App() {
   return (
     <ErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <Suspense fallback={<LoadingSpinner size="large" />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/password-recovery" element={<PasswordRecovery />} />
-              <Route path="/auth/github/callback" element={<GitHubCallback />} />
-              <Route path="/oauth-success" element={<OauthSuccess />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Suspense>
-          <ToastContainer
-            position="top-right"
-            autoClose={4000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            toastClassName="app-toast"
+      <Suspense fallback={<LoadingSpinner size="large" />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/password-recovery" element={<PasswordRecovery />} />
+          <Route path="/auth/github/callback" element={<GitHubCallback />} />
+          <Route path="/oauth-success" element={<OauthSuccess />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
           />
-        </AuthProvider>
-      </Router>
+        </Routes>
+      </Suspense>
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        toastClassName="app-toast"
+      />
     </ErrorBoundary>
   );
 }

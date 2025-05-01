@@ -17,8 +17,18 @@ export async function getLogActivity(req:Request, res: Response){
         
         const logActivity = await prisma.loginLog.findMany({
             where: { userId:userId },
+            orderBy: {
+                loginTime: 'desc'
+            }
         });
-        res.json(logActivity);
+
+        // Transform the data to include userAgent
+        const transformedData = logActivity.map(log => ({
+            ...log,
+            userAgent: req.headers['user-agent'] || 'Unknown'
+        }));
+
+        res.json(transformedData);
         return;
     }
     
