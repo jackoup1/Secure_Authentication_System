@@ -1,36 +1,28 @@
 import React, { useContext, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import LoadingSpinner from './LoadingSpinner';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
+  const location = useLocation();
 
   useEffect(() => {
     // Prevent caching of protected pages
-    const headers = new Headers();
-    headers.append('Cache-Control', 'no-cache, no-store, must-revalidate');
-    headers.append('Pragma', 'no-cache');
-    headers.append('Expires', '0');
+    document.documentElement.style.setProperty('--cache-control', 'no-store');
     
-    // Clear browser history state when component unmounts
     return () => {
-      if (!user) {
-        window.history.pushState(null, '', '/login');
-      }
+      document.documentElement.style.removeProperty('--cache-control');
     };
-  }, [user]);
+  }, []);
 
   if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading"></div>
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
+    // Save the attempted URL for redirecting after login
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   return children;

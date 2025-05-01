@@ -8,14 +8,40 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize user state from token if it exists
-    const initializeAuth = () => {
-      const userData = authService.getUser();
-      setUser(userData);
-      setLoading(false);
+    const initializeAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const userData = authService.getUser();
+          if (userData) {
+            setUser(userData);
+          } else {
+            // If token is invalid or expired, clean up
+            localStorage.removeItem('token');
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
+      }
     };
+
     initializeAuth();
-  }, []);
+
+    // Setup interval to periodically check token validity
+    const checkInterval = setInterval(() => {
+      const userData = authService.getUser();
+      if (!userData && user) {
+        // Token has expired, update state
+        setUser(null);
+        localStorage.removeItem('token');
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkInterval);
+  }, [user]);
 
   const login = async (credentials) => {
     const data = await authService.login(credentials);

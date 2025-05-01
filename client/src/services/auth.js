@@ -20,6 +20,12 @@ const getUser = () => {
     return null;
   }
   
+  // Check if token is expired
+  if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+    localStorage.removeItem('token');
+    return null;
+  }
+  
   return decoded;
 };
 
