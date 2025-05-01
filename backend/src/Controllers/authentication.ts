@@ -5,6 +5,16 @@ import jwt from "jsonwebtoken";
 
 const secret = process.env.JWT_SECRET as string;
 
+//variable user for date format when logging user login attempt
+const options : Intl.DateTimeFormatOptions = {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+};
+
 export async function Login(req: Request, res: Response) {
     const { email, password } = req.body;
     try {
@@ -25,7 +35,7 @@ export async function Login(req: Request, res: Response) {
         const token = jwt.sign({ username: user.username, id: user.id }, secret, { expiresIn: "24h" });
         res.json({ token });
 
-        console.log(`user: ${user.username} just logged in at: ${Date.now()}`);
+        console.log(`user: ${user.username} just logged in at: ${new Date().toLocaleString('en-US', options)}`);
         
         await prisma.loginLog.create({data:{userId:user.id}});
         return;
