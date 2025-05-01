@@ -69,7 +69,7 @@ const Login = () => {
       });
       navigate(location.state?.from || '/dashboard');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      const errorMessage = err.response?.data?.message || err.message || 'An error occurred';
       setErrors({ submit: errorMessage });
       toast.error(errorMessage, {
         icon: <FaExclamationCircle />
