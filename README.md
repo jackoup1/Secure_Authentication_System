@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Secure Authentication System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A secure and scalable authentication system built with **Node.js**, **Express**, **Prisma**, and **React**. This project provides enterprise-grade authentication features, including **JWT-based authentication**, **login activity tracking**, and a modern, responsive frontend interface.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+### 1. **JWT Authentication**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Implements secure, stateless authentication using **JSON Web Tokens (JWT)**.
+- Tokens are issued upon successful login and are required for accessing protected backend routes.
+- The backend validates tokens using a secret key (`JWT_SECRET`) stored securely in environment variables.
+- Token expiration ensures enhanced security, requiring users to reauthenticate after a set period.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 2. **Login Activity Tracking**
 
-### `npm test`
+- Tracks user login activity, including:
+  - **Timestamps** of login events.
+  - **User agents** (e.g., browser, device type).
+  - **IP addresses** for additional security insights.
+- Users can view their login history through the `/api/dashboard` endpoint.
+- Data is stored in the `loginLog` table in the database, managed via **Prisma ORM**.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 3. **Role-Based Access Control (RBAC)**
 
-### `npm run build`
+- Supports fine-grained access control with customizable user roles (e.g., `admin`, `user`).
+- Middleware restricts access to specific routes based on user roles.
+- Easily extendable to include additional roles or permissions.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 4. **Frontend Integration**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- A **React-based frontend** communicates with the backend via **RESTful APIs**.
+- Key frontend features include:
+  - **User authentication** (login, signup, password recovery).
+  - **Login activity visualization** with a modern, responsive UI.
+  - **Role-based navigation** to display content based on user permissions.
+- Built with **Framer Motion** for smooth animations and **React Router** for seamless navigation.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 5. **Biometric Authentication (Optional)**
 
-### `npm run eject`
+- Integrates with biometric authentication systems (e.g., fingerprint, face recognition) for enhanced security.
+- Supports fallback to traditional password-based authentication.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Backend
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The backend is built with **Node.js** and **Express**, using **Prisma** as the ORM for database interactions.
 
-## Learn More
+#### Folder Structure:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **`src/`**: Contains the main application logic.
+  - **`Controllers/`**: Handles business logic for authentication, user management, etc.
+  - **`Routes/`**: Defines API endpoints for authentication and dashboard features.
+  - **`Middleware/`**: Includes middleware for authentication, role-based access control, and error handling.
+  - **`prisma.ts`**: Initializes and exports the Prisma client for database operations.
+- **`prisma/schema.prisma`**: Defines the database schema, including tables for users, roles, and login logs.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Frontend
 
-### Code Splitting
+The frontend is built with **React** and styled using **CSS modules** and **Framer Motion** for animations.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+#### Folder Structure:
 
-### Analyzing the Bundle Size
+- **`src/components/`**: Reusable UI components (e.g., `Header`, `Footer`, `LoadingSpinner`).
+- **`src/pages/`**: Page-level components (e.g., `Dashboard`, `Home`, `Login`).
+- **`src/context/`**: Context providers for global state management (e.g., `AuthContext`).
+- **`src/services/`**: API service functions for interacting with the backend.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Getting Started
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Prerequisites
 
-### Advanced Configuration
+- **Node.js** (v14 or higher)
+- **npm** or **yarn**
+- **PostgreSQL** (or another database supported by Prisma)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Installation
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/secure-auth-system.git
+   cd secure-auth-system
+   ```
