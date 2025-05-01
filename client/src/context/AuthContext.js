@@ -8,24 +8,20 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const result = await authService.checkAuth();
-        setUser(result ? result.user : null);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    // Initialize user state from token if it exists
+    const initializeAuth = () => {
+      const userData = authService.getUser();
+      setUser(userData);
+      setLoading(false);
     };
-    checkAuth();
+    initializeAuth();
   }, []);
 
   const login = async (credentials) => {
     const data = await authService.login(credentials);
     if (data.token) {
-      const decodedToken = JSON.parse(atob(data.token.split('.')[1]));
-      setUser({ id: decodedToken.id, username: decodedToken.username });
+      const userData = authService.getUser();
+      setUser(userData);
     }
     return data;
   };
@@ -41,22 +37,19 @@ const AuthProvider = ({ children }) => {
     window.location.replace('/login');
   };
 
-
   const githubLogin = async (token) => {
     try {
       if (token) {
         localStorage.setItem('token', token);
-        const decodedToken = JSON.parse(atob(token.split('.')[1]));
-        setUser({ id: decodedToken.id, username: decodedToken.username });
+        const userData = authService.getUser();
+        setUser(userData);
+        window.location.replace('/dashboard');
       }
     } catch (err) {
       console.error('Invalid GitHub token', err);
       setUser(null);
     }
   };
-  
-
-
 
   return (
     <AuthContext.Provider value={{ 

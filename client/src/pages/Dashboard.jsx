@@ -117,6 +117,10 @@ const Dashboard = () => {
     }
   };
 
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className={styles.dashboard}>
       <Header />
@@ -150,6 +154,14 @@ const Dashboard = () => {
             >
               <FaSignOutAlt /> Sign Out
             </button>
+          </div>
+        </div>
+
+        <div className={styles.userInfo}>
+          <h2>Your Profile</h2>
+          <div className={styles.infoCard}>
+            <p><strong>Username:</strong> {user.username}</p>
+            <p><strong>User ID:</strong> {user.id}</p>
           </div>
         </div>
 
