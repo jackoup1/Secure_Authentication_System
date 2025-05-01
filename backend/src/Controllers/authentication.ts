@@ -24,7 +24,7 @@ export async function Login(req: Request, res: Response) {
             res.json({ message: "User Not found" });
             return;
         }
-        const isValidPassword = await argon2.verify(user.password, password);
+        const isValidPassword = await argon2.verify(user.password!, password);
 
         if (!isValidPassword) {
             res.status(400);
@@ -121,3 +121,4 @@ export async function Logout(req: Request, res: Response) {
         return;
     }
 }
+
