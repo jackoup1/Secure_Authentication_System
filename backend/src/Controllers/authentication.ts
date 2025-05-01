@@ -40,7 +40,6 @@ export async function Login(req: Request, res: Response) {
         //creating the token with data of username and id of the user expires in 24h
         const token = jwt.sign({ username: user.username, id: user.id }, secret, { expiresIn: "24h" });
         res.json({ token });        
-        await prisma.loginLog.create({data:{userId:user.id}});
         return;
         
     } catch (err) {
@@ -142,7 +141,6 @@ new GitHubStrategy(
             });
 
             if (existingUser) {
-                logLoginEvent(existingUser);
                 return done(null, existingUser);
             }
             console.log(profile);
