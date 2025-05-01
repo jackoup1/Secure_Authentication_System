@@ -41,13 +41,31 @@ const AuthProvider = ({ children }) => {
     window.location.replace('/login');
   };
 
+
+  const githubLogin = async (token) => {
+    try {
+      if (token) {
+        localStorage.setItem('token', token);
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        setUser({ id: decodedToken.id, username: decodedToken.username });
+      }
+    } catch (err) {
+      console.error('Invalid GitHub token', err);
+      setUser(null);
+    }
+  };
+  
+
+
+
   return (
     <AuthContext.Provider value={{ 
       user, 
       loading, 
       login, 
       signup, 
-      logout
+      logout,
+      githubLogin 
     }}>
       {children}
     </AuthContext.Provider>

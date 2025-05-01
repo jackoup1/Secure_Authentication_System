@@ -2,7 +2,6 @@ import express from "express"
 import dotenv from 'dotenv';
 import cors from 'cors';
 import passport from 'passport';
-import { Strategy as GitHubStrategy } from 'passport-github';
 import authRouter from "./Routes/authentication";
 
 dotenv.config();

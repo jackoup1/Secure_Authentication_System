@@ -170,5 +170,5 @@ export function githubCallback(req: Request, res: Response) {
         { expiresIn: "24h" }
     );
 
-    res.redirect(`http://localhost:3000/auth?token=${token}`);
+    res.redirect(`http://localhost:3000/oauth-success?token=${token}`);
 }

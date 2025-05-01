@@ -39,14 +39,10 @@ const Login = () => {
     }
   }, [location.state]);
 
-  const handleGithubLogin = async () => {
-    try {
-      await githubLogin();
-      // Redirect is handled by the OAuth flow
-    } catch (err) {
-      toast.error('GitHub authentication failed');
-    }
+  const handleGithubLogin = () => {
+    window.location.href = 'http://localhost:5000/api/auth/github';
   };
+  
 
   const handleLoginSubmit = async (values, { setSubmitting, setErrors }) => {
     try {

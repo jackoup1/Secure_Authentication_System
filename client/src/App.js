@@ -6,6 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
+import OauthSuccess from './components/Auth/oauthSuccess';
 import PasswordRecovery from './components/Auth/PasswordRecovery';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -50,6 +51,7 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/password-recovery" element={<PasswordRecovery />} />
               <Route path="/auth/github/callback" element={<GitHubCallback />} />
+              <Route path="/oauth-success" element={<OauthSuccess />} />
               <Route
                 path="/dashboard"
                 element={
