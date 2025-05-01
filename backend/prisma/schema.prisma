@@ -28,8 +28,7 @@ model LoginLog {
   userId    Int
   loginTime DateTime @default(now())
   ipAddress String?
-  os        String?
-  Browser   String?
+  status    Boolean
   user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, loginTime])

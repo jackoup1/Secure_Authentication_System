@@ -18,21 +18,21 @@ const options : Intl.DateTimeFormatOptions = {
     hour12: true
 };
 
-export async function Login(req: Request, res: Response) {
-    const { email, password } = req.body;
+export async function Login(req: any, res: Response) {
+    const { email, password,ip_address } = req.body;
     try {
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
             res.status(401);
-            res.json({ message: "User Not found" });
+            res.json({ message: "User Not found" });    
             return;
         }
         //just for debugging and security
-        logLoginEvent(user);
-
+        
         const isValidPassword = await argon2.verify(user.password!, password);
 
         if (!isValidPassword) {
+            logLoginEvent(user,false,ip_address);
             res.status(400);
             res.json({ message: "Incorrect Password" });
             return;
@@ -40,6 +40,7 @@ export async function Login(req: Request, res: Response) {
         //creating the token with data of username and id of the user expires in 24h
         const token = jwt.sign({ username: user.username, id: user.id }, secret, { expiresIn: "24h" });
         res.json({ token });        
+        logLoginEvent(user,true,req.ip_address);
         return;
         
     } catch (err) {
@@ -162,9 +163,9 @@ new GitHubStrategy(
 );
 
 // GitHub callback controller
-export function githubCallback(req: Request, res: Response) {
+export function githubCallback(req: any, res: Response) {
     const user = req.user as any;
-    logLoginEvent(user);
+    logLoginEvent(user,true,req.ip_address);
     const token = jwt.sign(
         { id: user.id, username: user.username },
         secret,
