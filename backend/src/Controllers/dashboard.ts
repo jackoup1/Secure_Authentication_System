@@ -1,5 +1,5 @@
 import { Request, request, Response,  } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import prisma from "../prisma";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 export async function getLogActivity(req:Request, res: Response){
@@ -11,10 +11,10 @@ export async function getLogActivity(req:Request, res: Response){
         }
     
         const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-    
-        const userId = Number(decoded.userId) ;
-        
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+
+        const userId = Number(decoded.id);
+
         const logActivity = await prisma.loginLog.findMany({
             where: { userId:userId },
             orderBy: {
@@ -27,7 +27,7 @@ export async function getLogActivity(req:Request, res: Response){
             ...log,
             userAgent: req.headers['user-agent'] || 'Unknown'
         }));
-
+        console.log(transformedData);
         res.json(transformedData);
         return;
     }
