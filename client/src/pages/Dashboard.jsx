@@ -157,14 +157,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className={styles.userInfo}>
-          <h2>Your Profile</h2>
-          <div className={styles.infoCard}>
-            <p><strong>Username:</strong> {user.username}</p>
-            <p><strong>User ID:</strong> {user.id}</p>
-          </div>
-        </div>
-
         <div className={styles.tabsContainer}>
           <div className={styles.tabs} role="tablist">
             <button

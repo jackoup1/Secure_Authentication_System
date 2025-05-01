@@ -69,6 +69,15 @@ const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         const userData = authService.getUser();
         setUser(userData);
+        
+        // Record login timestamp
+        const loginData = {
+          timestamp: new Date().toISOString(),
+          user_agent: navigator.userAgent,
+          success: true
+        };
+        localStorage.setItem('lastLogin', JSON.stringify(loginData));
+        
         window.location.replace('/dashboard');
       }
     } catch (err) {
