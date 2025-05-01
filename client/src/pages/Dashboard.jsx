@@ -33,6 +33,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Load login history from localStorage
     const lastLogin = JSON.parse(localStorage.getItem('lastLogin') || 'null');
+    console.log('Last Login from localStorage:', lastLogin);
     const failedLogins = JSON.parse(localStorage.getItem('failedLogins') || '[]');
     
     const allLogins = [
@@ -49,8 +50,9 @@ const Dashboard = () => {
       location: 'Current Location',
       lastActive: new Date(),
       current: true,
-      ip_address: lastLogin?.ip_address || 'Unknown'
+      ip_address: lastLogin?.ip_address || null
     };
+    console.log('Current Session:', currentSession);
 
     setSessions([currentSession]);
   }, []);
@@ -246,7 +248,9 @@ const Dashboard = () => {
                                 {getOSIcon(getOS())} {getOS()}
                               </span>
                             )}
-                            {activity.ip_address && ` • IP: ${activity.ip_address}`}
+                            {activity.ip_address ? 
+                              ` • IP: ${activity.ip_address}` : 
+                              ' • IP: Not detected'}
                           </p>
                           <span className={styles.timelineTime}>
                             {format(new Date(activity.timestamp), 'PPpp')}
@@ -284,7 +288,9 @@ const Dashboard = () => {
                             <p className={styles.sessionLocation}>
                               <FaGlobe /> {session.location}
                             </p>
-                            <p className={styles.sessionIp}>IP: {session.ip_address}</p>
+                            <p className={styles.sessionIp}>
+                              IP: {session.ip_address ? session.ip_address : 'Not detected'}
+                            </p>
                             <span className={styles.timelineTime}>
                               Last active: {format(session.lastActive, 'PPpp')}
                             </span>

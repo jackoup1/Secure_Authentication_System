@@ -3,12 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { FaUser, FaEnvelope, FaLock, FaShieldAlt, FaExclamationCircle, FaCheckCircle, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaShieldAlt, FaExclamationCircle, FaCheckCircle, FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const Signup = () => {
   const [step, setStep] = useState(1);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -122,7 +124,10 @@ const Signup = () => {
               setFormData(prev => ({
                 ...prev,
                 username: values.username,
-                email: values.email
+                email: values.email,
+                password: prev.password,
+                confirmPassword: prev.confirmPassword,
+                acceptTerms: prev.acceptTerms
               }));
               setStep(2);
             } else {
@@ -215,12 +220,28 @@ const Signup = () => {
                     <label>
                       <FaLock className="field-icon" /> Password
                     </label>
-                    <Field
-                      type="password"
-                      name="password"
-                      className={`form-input ${touched.password && errors.password ? 'error' : ''}`}
-                      placeholder="Create a strong password"
-                    />
+                    <div className="password-field">
+                      <Field
+                        type={passwordVisible ? 'text' : 'password'}
+                        name="password"
+                        className={`form-input ${touched.password && errors.password ? 'error' : ''}`}
+                        placeholder="Create a strong password"
+                        onChange={(e) => {
+                          setFieldValue('password', e.target.value);
+                          setFormData(prev => ({
+                            ...prev,
+                            password: e.target.value
+                          }));
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setPasswordVisible(!passwordVisible)}
+                      >
+                        {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
                     {renderPasswordStrength(values.password)}
                     {touched.password && errors.password && (
                       <div className="error-message">
@@ -238,12 +259,28 @@ const Signup = () => {
                     <label>
                       <FaShieldAlt className="field-icon" /> Confirm Password
                     </label>
-                    <Field
-                      type="password"
-                      name="confirmPassword"
-                      className={`form-input ${touched.confirmPassword && errors.confirmPassword ? 'error' : ''}`}
-                      placeholder="Confirm your password"
-                    />
+                    <div className="password-field">
+                      <Field
+                        type={confirmPasswordVisible ? 'text' : 'password'}
+                        name="confirmPassword"
+                        className={`form-input ${touched.confirmPassword && errors.confirmPassword ? 'error' : ''}`}
+                        placeholder="Confirm your password"
+                        onChange={(e) => {
+                          setFieldValue('confirmPassword', e.target.value);
+                          setFormData(prev => ({
+                            ...prev,
+                            confirmPassword: e.target.value
+                          }));
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                      >
+                        {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
                     {touched.confirmPassword && errors.confirmPassword && (
                       <div className="error-message">
                         <FaExclamationCircle /> {errors.confirmPassword}
