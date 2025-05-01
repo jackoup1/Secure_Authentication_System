@@ -40,7 +40,7 @@ export async function Login(req: any, res: Response) {
         //creating the token with data of username and id of the user expires in 24h
         const token = jwt.sign({ username: user.username, id: user.id }, secret, { expiresIn: "24h" });
         res.json({ token });        
-        logLoginEvent(user,true,req.ip_address);
+        logLoginEvent(user,true,ip_address);
         return;
         
     } catch (err) {
@@ -105,7 +105,6 @@ export async function Logout(req: Request, res: Response) {
         // Tell the client to delete their token (if you used cookies)
         res.clearCookie('token', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict'
         });
 
