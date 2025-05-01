@@ -1,9 +1,9 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { FaGithub, FaEnvelope, FaLock, FaExclamationCircle, FaCheckCircle } from 'react-icons/fa';
+import { FaGithub, FaEnvelope, FaLock, FaExclamationCircle, FaCheckCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
@@ -20,6 +20,10 @@ const Login = () => {
   const { login, githubLogin } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  // Get the initial email value, prioritizing location.state over localStorage
+  const initialEmail = location.state?.email || localStorage.getItem('rememberedEmail') || '';
 
   useEffect(() => {
     // Show success message if redirected from signup
@@ -28,25 +32,46 @@ const Login = () => {
         icon: <FaCheckCircle />
       });
     }
-
-    // Check for saved credentials or email from signup
-    const emailToUse = location.state?.email || localStorage.getItem('rememberedEmail');
-    if (emailToUse) {
-      document.getElementById('email').value = emailToUse;
-      if (localStorage.getItem('rememberedEmail')) {
-        document.getElementById('rememberMe').checked = true;
-      }
-    }
   }, [location.state]);
 
   const handleGithubLogin = () => {
     window.location.href = 'http://localhost:5000/api/auth/github';
   };
-  
 
   const handleLoginSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      await login(values);
+      // First get the IP address
+      let ipAddress = null;
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        ipAddress = ipData.IPv4 || ipData.ip;
+        console.log('IP Response:', ipData);
+      } catch (ipError) {
+        console.warn('Could not fetch IP address:', ipError);
+        // Try alternative IP service if first one fails
+        try {
+          const altIpResponse = await fetch('https://api64.ipify.org?format=json');
+          const altIpData = await altIpResponse.json();
+          ipAddress = altIpData.IPv4 || altIpData.ip;
+          console.log('Alternative IP Response:', altIpData);
+        } catch (altIpError) {
+          console.error('Could not fetch IP from alternative service:', altIpError);
+          throw new Error('Could not detect IP address. Please check your internet connection.');
+        }
+      }
+
+      if (!ipAddress) {
+        throw new Error('Could not detect IP address. Please check your internet connection.');
+      }
+
+      // Add IP address to login credentials
+      const credentials = {
+        ...values,
+        ip_address: ipAddress
+      };
+
+      await login(credentials);
 
       // Handle "Remember Me" functionality
       if (values.rememberMe) {
@@ -58,10 +83,12 @@ const Login = () => {
       // Log login activity
       const loginData = {
         timestamp: new Date().toISOString(),
-        ip_address: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip),
         user_agent: navigator.userAgent,
-        success: true
+        success: true,
+        ip_address: ipAddress
       };
+      
+      console.log('Login Data:', loginData);
       localStorage.setItem('lastLogin', JSON.stringify(loginData));
 
       toast.success('Login successful', {
@@ -69,7 +96,14 @@ const Login = () => {
       });
       navigate(location.state?.from || '/dashboard');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      let errorMessage = 'An error occurred during login';
+      
+      if (err.message === 'Failed to fetch') {
+        errorMessage = 'Network error: Please check your internet connection';
+      } else {
+        errorMessage = err.response?.data?.message || err.message || errorMessage;
+      }
+      
       setErrors({ submit: errorMessage });
       toast.error(errorMessage, {
         icon: <FaExclamationCircle />
@@ -103,12 +137,13 @@ const Login = () => {
 
       <Formik
         initialValues={{
-          email: localStorage.getItem('rememberedEmail') || '',
+          email: initialEmail,
           password: '',
           rememberMe: Boolean(localStorage.getItem('rememberedEmail'))
         }}
         validationSchema={loginSchema}
         onSubmit={handleLoginSubmit}
+        enableReinitialize={false}
       >
         {({ errors, touched, isSubmitting }) => (
           <Form className="auth-form">
@@ -143,13 +178,22 @@ const Login = () => {
               <label>
                 <FaLock className="field-icon" /> Password
               </label>
-              <Field
-                type="password"
-                name="password"
-                id="password"
-                className={`form-input ${touched.password && errors.password ? 'error' : ''}`}
-                placeholder="Enter your password"
-              />
+              <div className="password-field">
+                <Field
+                  type={passwordVisible ? 'text' : 'password'}
+                  name="password"
+                  id="password"
+                  className={`form-input ${touched.password && errors.password ? 'error' : ''}`}
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                >
+                  {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               {touched.password && errors.password && (
                 <div className="error-message">
                   <FaExclamationCircle /> {errors.password}
