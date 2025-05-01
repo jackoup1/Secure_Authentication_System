@@ -1,10 +1,20 @@
 import { Router } from "express"
-import { Login, SignUp } from "../Controllers/authentication";
+import { Login, SignUp, githubCallback } from "../Controllers/authentication";
+import passport from "passport";
+
 
 const router = Router();
 
 router.post("/login",Login);
 
 router.post("/signUp",SignUp);
+
+router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
+
+router.get(
+    "/github/callback",
+    passport.authenticate("github", { session: false }),
+    githubCallback
+);
 
 export default router;

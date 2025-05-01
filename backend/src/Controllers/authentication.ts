@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import argon2 from "argon2"
 import jwt from "jsonwebtoken";
+import passport from "passport";
+import { Strategy as GitHubStrategy } from 'passport-github';
 
 const secret = process.env.JWT_SECRET as string;
 
@@ -122,3 +124,51 @@ export async function Logout(req: Request, res: Response) {
     }
 }
 
+
+
+// GitHub strategy setup
+passport.use(
+new GitHubStrategy(
+    {
+        clientID: process.env.GITHUB_CLIENT_ID!,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+        callbackURL: "http://localhost:5000/api/auth/github/callback"
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            const existingUser = await prisma.user.findUnique({
+                where: { githubId: profile.id }
+            });
+
+            if (existingUser) {
+                return done(null, existingUser);
+            }
+            console.log(profile);
+            const user = await prisma.user.create({
+                data: {
+                    username: profile.username || profile.displayName,
+                    email: profile.emails?.[0].value || `${profile.username}@github.com`, // fallback
+                    githubId: profile.id
+                }
+            });
+
+            return done(null, user);
+        } catch (err) {
+            return done(err);
+        }
+    }
+)
+);
+
+// GitHub callback controller
+export function githubCallback(req: Request, res: Response) {
+    const user = req.user as any;
+
+    const token = jwt.sign(
+        { id: user.id, username: user.username },
+        secret,
+        { expiresIn: "24h" }
+    );
+
+    res.redirect(`http://localhost:3000/auth?token=${token}`);
+}
