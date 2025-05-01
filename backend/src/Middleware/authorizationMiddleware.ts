@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "../generated/prisma";
+
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -9,7 +9,8 @@ export function authorizeUser(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({ message: "Authorization token missing" });
+        res.status(401).json({ message: "Authorization token missing" });
+        return;
     }
 
     const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
@@ -19,6 +20,7 @@ export function authorizeUser(req: Request, res: Response, next: NextFunction) {
         (req as any).user = user;
         next();
     } catch (error) {
-        return res.status(401).json({ message: "Token invalid or expired. Please login again." });
+         res.status(401).json({ message: "Token invalid or expired. Please login again." });
+         return;
     }
 }

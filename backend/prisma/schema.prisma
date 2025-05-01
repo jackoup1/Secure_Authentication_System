@@ -27,6 +27,9 @@ model LoginLog {
   id        Int      @id @default(autoincrement())
   userId    Int
   loginTime DateTime @default(now())
+  ipAddress String?
+  os        String?
+  Browser   String?
   user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, loginTime])

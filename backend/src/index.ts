@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import passport from 'passport';
 import authRouter from "./Routes/authentication";
+import dashboardRouter from "./Routes/dashboard";
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ app.use(passport.initialize());
 
 
 app.use("/api/auth",authRouter);
-
+app.use("/api/dashboard",dashboardRouter);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT,()=>{

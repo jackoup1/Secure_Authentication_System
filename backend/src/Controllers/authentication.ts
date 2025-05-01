@@ -100,6 +100,7 @@ export async function SignUp(req: Request, res: Response) {
 
 export async function Logout(req: Request, res: Response) {
     try {
+        console.log("Logging out user...");
         // Tell the client to delete their token (if you used cookies)
         res.clearCookie('token', {
             httpOnly: true,
